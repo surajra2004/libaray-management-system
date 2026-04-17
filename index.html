@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Library System</title>+++
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+.container { max-width: 900px; margin: auto; background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 30px; }
+h1 { text-align: center; margin-bottom: 20px; font-size: 2.5em; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.form-section { background: rgba(255,255,255,0.8); border-radius: 15px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; }
+input { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: border 0.3s; box-sizing: border-box; }
+input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+.btn { padding: 12px 30px; background: linear-gradient(45deg, #4CAF50, #45a049); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; margin: 5px; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(76,175,80,0.4); }
+.btn-secondary { background: linear-gradient(45deg, #2196F3, #1976D2); }
+.book { background: white; border: 2px solid #e0e0e0; margin: 15px 0; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: all 0.3s; }
+.book:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+.book-title { font-size: 1.4em; font-weight: bold; margin-bottom: 8px; color: #333; }
+.issued { border-color: #f44336; background: #ffebee; }
+.action-btn { padding: 8px 16px; margin: 0 5px 5px 0; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.stats { background: rgba(102,126,234,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; }
+@media (max-width: 768px) { .btn-group { flex-direction: column; } .btn { margin: 5px 0; } }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📚 Library Management System</h1>
+
+<div class="form-section">
+<h2>➕ Add New Book</h2>
+<div class="form-group">
+  <label>Title:</label>
+  <input type="text" id="title" placeholder="Enter book title">
+</div>
+<div class="form-group">
+  <label>Author:</label>
+  <input type="text" id="author" placeholder="Enter author name">
+</div>
+<div class="form-group">
+  <label>ISBN:</label>
+  <input type="text" id="isbn" placeholder="Enter ISBN">
+</div>
+<button class="btn" onclick="addBookFromForm()">Add Book</button>
+</div>
+
+<div class="stats">
+<h3>📊 Stats</h3>
+<span id="total">0</span> Total | 
+<span id="available">0</span> Available | 
+<span id="issued">0</span> Issued
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-secondary" onclick="listBooks()">📋 Show All Books</button>
+</div>
+
+<div id="output"></div>
+</div>
+
+<script>
+let books = [];
+
+function updateStats() {
+  document.getElementById('total').textContent = books.length;
+  document.getElementById('available').textContent = books.filter(b => !b.issued).length;
+  document.getElementById('issued').textContent = books.filter(b => b.issued).length;
+}
+
+function addBookFromForm() {
+  const title = document.getElementById('title').value.trim();
+  const author = document.getElementById('author').value.trim();
+  const isbn = document.getElementById('isbn').value.trim();
+  
+  if (!title || !author || !isbn) {
+    alert('Please fill all fields');
+    return;
+  }
+  
+  books.push({title, author, isbn, issued: false});
+  document.getElementById('title').value = '';
+  document.getElementById('author').value = '';
+  document.getElementById('isbn').value = '';
+  updateStats();
+  alert('Book added successfully!');
+}
+
+function listBooks() {
+  let html = '';
+  books.forEach((b, i) => {
+    html += `
+      <div class="book ${b.issued ? 'issued' : ''}">
+        <div class="book-title">${b.title}</div>
+        <strong>Author:</strong> ${b.author}<br>
+        <strong>ISBN:</strong> ${b.isbn}
+        <div style="margin-top: 10px;">
+          <button class="action-btn" onclick="toggleIssue(${i})" style="background: #2196F3; color: white;">
+            ${b.issued ? 'Return Book' : 'Issue Book'}
+          </button>
+          <button class="action-btn" onclick="deleteBook(${i})" style="background: #f44336; color: white;">
+            Delete
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('output').innerHTML = html;
+  updateStats();
+}
+
+function toggleIssue(id) {
+  books[id].issued = !books[id].issued;
+  updateStats();
+  listBooks();
+}
+
+function deleteBook(id) {
+  if (confirm('Delete this book?')) {
+    books.splice(id, 1);
+    updateStats();
+    listBooks();
+  }
+}
+
+// Sample data
+books = [
+  {title: 'C++ Primer', author: 'Stanley Lippman', isbn: '0321714113', issued: false},
+  {title: 'Effective Modern C++', author: 'Scott Meyers', isbn: '1491903996', issued: true}
+];
+updateStats();
+listBooks();
+</script>
+</body>
+</html>
+
